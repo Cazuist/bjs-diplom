@@ -35,7 +35,7 @@ manager.addMoneyCallback = (currencyObj) => {
     const message = !response.success ? response.data :
             `Кошелек успешно пополнен на ${currencyObj.amount} ${currencyObj.currency}.`;
 
-    manager.setMessage(response.success, message);
+    manager.setMessage(!response.success, message);
     if(response.success) {
       ProfileWidget.showProfile(response.data); 
     }    
@@ -48,7 +48,7 @@ manager.conversionMoneyCallback = (convertObj) => {
     const message = !response.success ? response.data :
         `Успешно конвертировано ${convertObj.fromAmount} ${convertObj.fromCurrency} в ${convertObj.targetCurrency}`;
 
-    manager.setMessage(response.success, message);
+    manager.setMessage(!response.success, message);
     if(response.success) {
       ProfileWidget.showProfile(response.data); 
     }    
@@ -62,7 +62,7 @@ manager.sendMoneyCallback = (transfObj) => {
         `Совершен перевод ${transfObj.amount} ${transfObj.currency}.
         ID получателя ${transfObj.to}.`;
 
-    manager.setMessage(response.success, message);
+    manager.setMessage(!response.success, message);
 
     if(response.success) {
       ProfileWidget.showProfile(response.data); 
@@ -82,25 +82,30 @@ ApiConnector.getFavorites( (response) => {
 }) 
 
 favorite.addUserCallback = (data) => {
-  ApiConnector.addUserToFavorites(data, response => {    
+  const addUser = favorite.getData();
+  ApiConnector.addUserToFavorites(data, response => {     
     if(response.success) {
       favorite.clearTable();
       favorite.fillTable(response.data);
       manager.updateUsersList(response.data);
-    } else {      
-      favorite.setMessage(response.success, response.data);
     }
+    const message = !response.success ? response.data :
+        `Пользователь ${addUser.name} (ID:${addUser.id}) успешно добавлен`;
+
+    favorite.setMessage(!response.success, message);
   });
 };
 
 favorite.removeUserCallback = (id) => {
   ApiConnector.removeUserFromFavorites(id, response => {    
+    
     if(response.success) {
       favorite.clearTable();
       favorite.fillTable(response.data);
       manager.updateUsersList(response.data);
-    } else {      
-      favorite.setMessage(response.success, response.data);
     }
+    
+    const message = 'Пользователь удален из избранного';
+    favorite.setMessage(!response.success, message);
   });
 };
